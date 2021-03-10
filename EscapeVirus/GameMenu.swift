@@ -14,11 +14,13 @@ class GameMenu: SKScene{
     
     var startGame = SKLabelNode()
     var bestScore = SKLabelNode()
+    var startBanner = SKShapeNode()
     var gameSettings = Settings.sharedInstance
     
     override func didMove (to view: SKView) {
         self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         startGame = self.childNode(withName: "startGame") as! SKLabelNode
+        startBanner = self.childNode(withName: "startBanner") as! SKShapeNode
         bestScore = self.childNode(withName: "bestScore") as! SKLabelNode
         bestScore.text = ""
         bestScore.text = "Best : \(gameSettings.highScore)"

@@ -13,6 +13,8 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     
     var leftHuman = SKSpriteNode()
     var rightHuman = SKSpriteNode()
+    var colidedBox = SKShapeNode()
+    var colidedLabel = SKLabelNode()
     
     var canMove = false
     var leftHumanToMoveLeft = true
@@ -35,6 +37,9 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     var scoreText = SKLabelNode()
     
     var gameSettings = Settings.sharedInstance
+    var colided = false
+    
+    var phrases = Array<String>(repeating:"",count:5)
     
     override func didMove(to view: SKView) {
         self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
@@ -83,6 +88,9 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        if colided {afterCollisionContinue()}
+        
         for touch in touches{
             let touchLocation = touch.location(in: self)
             if touchLocation.x > centerPoint{
@@ -108,9 +116,23 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     }
     
     func setUp() {
+        
+        phrases = [
+            "Some text \n to tell about \n virus 1",
+            "Some text \n to tell about \n virus 2",
+            "Some text \n to tell about \n virus 3",
+            "Some text \n to tell about \n virus 4",
+            "Some text \n to tell about \n virus 5"
+        ]
+        
         leftHuman = self.childNode(withName: "leftHuman") as! SKSpriteNode
         rightHuman = self.childNode(withName: "rightHuman") as! SKSpriteNode
         centerPoint = self.frame.size.width / self.frame.size.height
+        
+        colidedBox = self.childNode(withName: "colidedBox") as! SKShapeNode
+        colidedLabel = self.childNode(withName: "colidedLabel") as! SKLabelNode
+        colidedBox.alpha = 0
+        colidedLabel.alpha = 0
         
         leftHuman.physicsBody?.categoryBitMask = ColliderType.HUMAN_COLLIDER
         leftHuman.physicsBody?.contactTestBitMask = ColliderType.ITEM_COLLIDER
@@ -301,7 +323,22 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         if gameSettings.highScore < score{
             gameSettings.highScore = score
         }
+
         gameSettings.highScore = score
+
+        // Sets the random phrase about virus
+        let randomNum :CGFloat = Helper().randomBetweenTwoNumbers(firstNumber: 1, secondNumber: CGFloat(phrases.count))
+        let phrase = phrases[Int(randomNum)]
+        colidedLabel.text = phrase
+        colidedBox.alpha = 1
+        colidedLabel.alpha = 1
+
+        colided = true
+        self.stopEverything = true
+    }
+    
+    func afterCollisionContinue(){
+        
         let menuScene = SKScene(fileNamed: "GameMenu")!
         menuScene.scaleMode = .aspectFill
         view?.presentScene(menuScene, transition: SKTransition.doorsCloseHorizontal(withDuration: TimeInterval(2)))
